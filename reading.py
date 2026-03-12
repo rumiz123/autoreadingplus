@@ -36,7 +36,7 @@ def get_next_question():
         "secure_login": "true",
         "school_code_4": "RPJOHNF1",
         "login_form": "student",
-        "SESSION": "",
+        "SESSION": "ZDlmYjRjOWYtMjI5NS00MmNhLTk4MzAtNzViY2I2ZmRhNTY0",
         "AWSALB": "Ffc/2K3S/l/IHwbWyLs2toKmcIsjddjedSq0TQTk82klTBRNUkH1T15T5VAEv0rhm3sl2v+QQ7T4eY4ehy9mhzuYExeZX6UADyT78YECAIbmfvuf5HUeSOZ8dtip",
         "AWSALBCORS": "Ffc/2K3S/l/IHwbWyLs2toKmcIsjddjedSq0TQTk82klTBRNUkH1T15T5VAEv0rhm3sl2v+QQ7T4eY4ehy9mhzuYExeZX6UADyT78YECAIbmfvuf5HUeSOZ8dtip"
     }
@@ -113,111 +113,7 @@ def extract_question_and_passage(story_data, question_id):
     return None, None
 
 
-def check_ollama():
-    try:
-        result = subprocess.run(['ollama', 'list'],
-                                capture_output=True,
-                                text=True,
-                                encoding='utf-8',
-                                errors='ignore',
-                                timeout=5)
-        if result.returncode == 0:
-            lines = result.stdout.strip().split('\n')
-            for line in lines:
-                if 'llama3.2' in line:
-                    return 'llama3.2:latest'
-                elif 'llama' in line:
-                    parts = line.split()
-                    if parts:
-                        return parts[0]
-        return None
-    except:
-        return None
-
-
-def ask_ollama_simple(question, passage, choices, model_name):
-    if len(passage) > 600:
-        short_passage = passage
-    else:
-        short_passage = passage
-
-    num_choices = len(choices)
-
-    # Build options list with 1-based numbering
-    options_text = "\n".join([f"{i + 1}. {choices[i]}" for i in range(num_choices)])
-
-    # SIMPLE PROMPT - tell it exactly what we want
-    prompt = f"""Read this passage and answer the multiple choice question.
-
-Passage: {short_passage}
-
-Question: {question}
-
-Options:
-{options_text}
-
-Answer with a single number from 1 to {num_choices}.
-Example: If the answer is the first option, say "1".
-Example: If the answer is the third option, say "3".
-
-If a question requires more than 1 answer, give both the numbers
-Example: If the answer is the third and fourth option, say "3 and 4".
-
-What is the correct answer? Answer with only the number(s):"""
-
-    try:
-        process = subprocess.Popen(
-            ['ollama', 'run', model_name],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding='utf-8',
-            errors='ignore'
-        )
-
-        stdout, stderr = process.communicate(input=prompt, timeout=20)
-
-        if stdout:
-            response = stdout.strip()
-            print(f"Ollama raw response: '{response}'")
-
-            # Extract any number from response
-            numbers = re.findall(r'\d+', response)
-            if numbers:
-                num = int(numbers[0])
-                # Validate it's in the correct range
-                if 1 <= num <= num_choices:
-                    return str(num)
-
-            # Also check for single digit
-            for char in response:
-                if char.isdigit():
-                    num = int(char)
-                    if 1 <= num <= num_choices:
-                        return char
-
-        # Default to first option (1)
-        return "1"
-
-    except Exception as e:
-        print(f"Ollama error: {e}")
-        return "1"
-
-
 def main():
-    print("=" * 60)
-    print("READING PLUS ANSWERB0T")
-    print("=" * 60)
-
-    # Check Ollama
-    model_name = check_ollama()
-    if not model_name:
-        print("Ollama not found")
-        return
-
-    print(f"Model: {model_name}")
-
     # Get question
     question_data = get_next_question()
     if not question_data:
@@ -233,19 +129,9 @@ def main():
         print("Failed to extract IDs")
         return
 
-    story_title = section_data.get('storyTitle', 'Unknown')
-    print(f"Story: {story_title}")
-
     # Get choices
     choices_data = section_data.get('choiceList', [])
     choices = [choice.get('text', '').strip() for choice in choices_data]
-
-    num_choices = len(choices)
-    print(f"Found {num_choices} choices")
-
-    if num_choices < 2:
-        print("Not enough choices to analyze")
-        return
 
     # Get story content
     story_data = get_story_content(story_id)
@@ -254,20 +140,12 @@ def main():
 
     if story_data:
         question_text, passage_text = extract_question_and_passage(story_data, question_id)
-
-    print("\n" + "=" * 60)
-    print("AI ANALYSIS:")
-    print("=" * 60)
-
-    if passage_text and len(passage_text) > 50:
-        # Ask Ollama (returns 1-based answer)
-        raw_answer = ask_ollama_simple(question_text, passage_text, choices, model_name)
-
-        print(f"\nAI answered: {raw_answer}")
-
-    else:
-        print("\nNot enough passage text for analysis")
-
+    print("Question:")
+    print(question_text + "?")
+    print("Passage:")
+    print(passage_text)
+    print("Choices:")
+    print(choices)
 
 if __name__ == "__main__":
     main()
