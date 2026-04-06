@@ -277,6 +277,6 @@ if __name__ == "__main__":
     rp = ReadingPlusAuto()
 
     # Complete setup
-    if rp.complete_full_setup("RPJOHNF1", "rumnel567@fusdk12.net", "64567"):
+    if rp.complete_full_setup("RPJOHNF1", "nigga@fusdk12.net", "nigga"):
 
         rp.process_words(num_words=4, fixed_points=4)

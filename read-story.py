@@ -173,6 +173,8 @@ class ReadingPlusReadingAuto:
         print(f"\n  📖 Saving segment {segment_index}/{self.total_segments}...")
         response = self.session.post(url, headers=headers, json=payload)
 
+        print(f"  Response status: {response.status_code}")
+        print(f"  Response body: {response.text[:500]}")
         if response.status_code == 200:
             try:
                 data = response.json()
@@ -180,8 +182,10 @@ class ReadingPlusReadingAuto:
                     total_time = sum(screen.get('secondsTaken', 0) for screen in screen_list)
                     print(f"  ✓ Segment {segment_index} complete - Reading time: {total_time} seconds")
                     return True
-            except:
-                pass
+                else:
+                    print(f"  ✗ Result was false: {data}")
+            except Exception as e:
+                print(f"  ✗ Parse error: {e}")
         print(f"  ✗ Segment {segment_index} failed")
         return False
 
@@ -348,8 +352,9 @@ class ReadingPlusReadingAuto:
 
             # Wait between stories (like a real student taking a break)
             if story_num < num_stories:
-                break_time = random.randint(60, 180)  # 1-3 minutes
+                break_time = random.randint(3, 8)  # Short break for testing
                 print(f"\n⏱️  Taking a {break_time} second break before next story...")
+                time.sleep(break_time)
 
         print("\n" + "=" * 70)
         print(f"✅ COMPLETED {story_num} STORIES!")
@@ -361,13 +366,10 @@ if __name__ == "__main__":
     reader = ReadingPlusReadingAuto()
 
     # Complete authentication
-    if reader.complete_full_setup("RPJOHNF1", "rumnel567@fusdk12.net", "64567"):
+    if reader.complete_full_setup("RPJOHNF1", "nigga@fusdk12.net", "nigga"):
 
-        # Option 1: Complete one story
+        # Debug: try 1 story first
         reader.complete_reading_story()
-
-        # Option 2: Complete multiple stories (uncomment to use)
-        # reader.complete_multiple_stories(num_stories=3)
 
         # Print final cookies for reference
         print("\n" + "=" * 70)
