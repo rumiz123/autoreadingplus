@@ -9,9 +9,9 @@ from typing import Dict, List, Optional
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from dotenv import load_dotenv
 
-ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyCsMvDN1H3hCL6T47RlqvhifpmpM6Jx6Sg')
+load_dotenv()
 
 
 class ReadingPlusCLI:
@@ -559,5 +559,9 @@ if __name__ == "__main__":
     # How many lessons to run (default 8, or pass as arg)
     num = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 
-    cli = ReadingPlusCLI("RPJOHNF1", "nigga@fusdk12.net", "nigga")
+    site_code = os.environ.get('RP_SITE_CODE', '')
+    username = os.environ.get('RP_USERNAME', '')
+    password = os.environ.get('RP_PASSWORD', '')
+
+    cli = ReadingPlusCLI(site_code, username, password)
     cli.run(num)

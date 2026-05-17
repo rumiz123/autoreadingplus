@@ -1,1 +1,0 @@
-# just use claude for browser its better

@@ -4,7 +4,11 @@ import time
 import random
 import re
 import sys
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class VisualSkillsCLI:
@@ -358,5 +362,8 @@ class VisualSkillsCLI:
 
 if __name__ == "__main__":
     num = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    cli = VisualSkillsCLI("RPJOHNF1", "nigga@fusdk12.net", "nigga")
+    site_code = os.environ.get('RP_SITE_CODE', '')
+    username = os.environ.get('RP_USERNAME', '')
+    password = os.environ.get('RP_PASSWORD', '')
+    cli = VisualSkillsCLI(site_code, username, password)
     cli.run(lessons=num)

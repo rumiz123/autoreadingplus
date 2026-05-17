@@ -2,7 +2,11 @@ import requests
 import json
 import time
 import random
+import os
 from typing import Dict, List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class ReadingPlusAuto:
@@ -277,6 +281,9 @@ if __name__ == "__main__":
     rp = ReadingPlusAuto()
 
     # Complete setup
-    if rp.complete_full_setup("RPJOHNF1", "nigga@fusdk12.net", "nigga"):
+    site_code = os.environ.get('RP_SITE_CODE', '')
+    username = os.environ.get('RP_USERNAME', '')
+    password = os.environ.get('RP_PASSWORD', '')
+    if rp.complete_full_setup(site_code, username, password):
 
         rp.process_words(num_words=4, fixed_points=4)

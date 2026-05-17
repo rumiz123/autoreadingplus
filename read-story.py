@@ -2,7 +2,11 @@ import requests
 import json
 import time
 import random
+import os
 from typing import Dict, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class ReadingPlusReadingAuto:
@@ -366,7 +370,10 @@ if __name__ == "__main__":
     reader = ReadingPlusReadingAuto()
 
     # Complete authentication
-    if reader.complete_full_setup("RPJOHNF1", "nigga@fusdk12.net", "nigga"):
+    site_code = os.environ.get('RP_SITE_CODE', '')
+    username = os.environ.get('RP_USERNAME', '')
+    password = os.environ.get('RP_PASSWORD', '')
+    if reader.complete_full_setup(site_code, username, password):
 
         # Debug: try 1 story first
         reader.complete_reading_story()
